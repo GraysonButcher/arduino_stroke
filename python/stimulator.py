@@ -31,7 +31,6 @@ class RealStimulator(Stimulator):
     def stimulate(self):
         out = StringIO()
         err = StringIO()
-        print("Sending stimulate command...")
         self.eng.stimulate(nargout=0, stdout=out, stderr=err)
         out_text = out.getvalue()
         err_text = err.getvalue()
@@ -59,15 +58,12 @@ class RealStimulator(Stimulator):
 
         if err != "":
             ret = False
-            print("Weird output: \n{}".format(err))
         
         if "stimulation start success" in out:
             ret = True
-            print("GREAT SUCCESS!")
 
         elif "Device detection failed Code:2" in out:
             ret = False
-            print("Device not present.")
         
         return ret
 

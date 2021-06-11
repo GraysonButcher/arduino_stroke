@@ -129,7 +129,11 @@ class ComPortHandler:
     def handle_stim_request(self, port):
         self.known_arduinos[port]["log"].log("Stimulation request received from port {}".format(port))
 
-        if stim.stimulate():
+        timestamp = time.time()
+        retval = stim.stimulate()
+        self.known_arduinos[port]["log"].log("Stimulate call time: {}".format(time.time() - timestamp))
+
+        if retval:
             self.known_arduinos[port]["log"].log("Stimulation worked!")
 
         else:
