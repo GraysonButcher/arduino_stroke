@@ -8,6 +8,8 @@ class DataFile:
         self.previous_data_file_modified_timestamp = 0
         self.error_msg = ""
         self.re_obj = re.compile("\d{17}|default,\d{1,5},\d{1,5}")
+
+        self.default_data = "default,5,6\n12345678901234567,1,1\n96847000010331565,4,0\n96847000010332304,5,6"
         # Look for 17 characters or the word "default", one comma, a 1-5 digit number, a comma and a 1-5 digit number.
 
         self.rat_data = {}
@@ -30,15 +32,18 @@ class DataFile:
         #       If correct, the row is stored and used
         #       If incorrect, the row is discarded and the program continues to the next row
 
-        if os.path.isfile(self.data_file):
-            self.current_data_file_modified_timestamp = os.path.getmtime(self.data_file)
-            if self.current_data_file_modified_timestamp > self.previous_data_file_modified_timestamp:
-                # file has been modified, load new values
-                self.load_new_values()
+        if not os.path.isfile(self.data_file):
+            with open(self.data_file, 'w') as f:
+                f.write(self.default_data)
 
-                if "default" not in self.rat_data.keys():
-                    self.error_msg += "Caution: No default specified in data file."
-                self.previous_data_file_modified_timestamp = self.current_data_file_modified_timestamp
+        self.current_data_file_modified_timestamp = os.path.getmtime(self.data_file)
+        if self.current_data_file_modified_timestamp > self.previous_data_file_modified_timestamp:
+            # file has been modified, load new values
+            self.load_new_values()
+
+            if "default" not in self.rat_data.keys():
+                self.error_msg += "Caution: No default specified in data file."
+            self.previous_data_file_modified_timestamp = self.current_data_file_modified_timestamp
 
     def write_new_data_to_existing_file(self, rfid, force, pos):
         self.rat_data[rfid] = [force, pos]
