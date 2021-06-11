@@ -130,12 +130,10 @@ class ComPortHandler:
         self.known_arduinos[port]["log"].log("Stimulation request received from port {}".format(port))
 
         if stim.stimulate():
-            self.known_arduinos[port]["log"].log("Stimulation worked! Sending \"ACK\" response to micro.")
-            self.transmit_data("ack", port)
+            self.known_arduinos[port]["log"].log("Stimulation worked!")
 
         else:
-            self.known_arduinos[port]["log"].log("Stimulation failed! Sending \"NAK\" response to micro.")
-            self.transmit_data("nak", port)
+            self.known_arduinos[port]["log"].log("Stimulation failed!")
 
     def reset_heartbeat_timer(self, port):
         self.known_arduinos[port]["timer"] = time.time()
