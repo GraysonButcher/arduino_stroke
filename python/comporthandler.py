@@ -5,7 +5,6 @@ from logging import Log
 from logging import PilotError
 from datafile import df
 from stimulator import stim
-import concurrent.futures
 
 try:
     import serial
@@ -42,7 +41,6 @@ class ComPortHandler:
         self.heartbeat_timer = 4
         self.com_port_error_count = 0
         self.max_com_port_errors_before_rescan = 50
-        self.stimulator_available = True
         self.request_re_obj = re.compile('<request(\d{17}?)>')  # Look for "request" followed by 17 digits encased between "<" and ">"
         self.write_re_obj = re.compile("<write(\d{17},\d{1,5},\d{1,5})>") # Look for "write" followed by 17 digits, 5 digits and 5 digits all comma separated
 
@@ -131,21 +129,7 @@ class ComPortHandler:
     def handle_stim_request(self, port):
         self.known_arduinos[port]["log"].log("Stimulation request received from port {}".format(port))
 
-        def stim_callback():
-            self.stimulator_available = True
-            if thread.result():
-                self.known_arduinos[port]["log"].log("Stimulation worked!")
-
-            else:
-                self.known_arduinos[port]["log"].log("Stimulation failed!")
-
-        if self.stimulator_available:
-            executor = concurrent.futures.ThreadPoolExecutor()
-            thread = executor.submit(stim.stimulate)
-            self.stimulator_available = False
-            thread.add_done_callback(stim_callback)
-        else:
-            self.known_arduinos[port]["log"].log("WARNING: Stimulator not available, unable to stimulate right now")
+        stim.fire_stimulator(self.known_arduinos[port]["log"])
 
     def reset_heartbeat_timer(self, port):
         self.known_arduinos[port]["timer"] = time.time()

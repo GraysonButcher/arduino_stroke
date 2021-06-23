@@ -2,6 +2,7 @@ import sys
 from io import StringIO
 import traceback
 from contextlib import redirect_stdout
+from multiprocessing import Pool
 
 class Capturing(list):
     def __enter__(self):
@@ -27,6 +28,7 @@ class RealStimulator(Stimulator):
         self.eng = matlab.engine.start_matlab()
         self.eng.addpath(path, nargout=0)
         self.eng.RodStimInit(nargout=0)
+        self.stimulator_available = True
 
     def stimulate(self):
         out = StringIO()
@@ -34,20 +36,6 @@ class RealStimulator(Stimulator):
         self.eng.stimulate(nargout=0, stdout=out, stderr=err)
         out_text = out.getvalue()
         err_text = err.getvalue()
-
-        # future = self.eng.stimulate(nargout=0)
-        # out = future.result()
-        # print("\n\n**** WITH nargout: output is {}\n".format(out))
-
-        # DIDN'T WORK:
-        # with Capturing() as output:
-        #     self.eng.stimulate(nargout=0)
-        # print("stdout from Capturing() is {}".format(output))
-
-        # f = StringIO()
-        # with redirect_stdout(f):
-        #     self.eng.stimulate(nargout=0)
-        # print("redirect_stdout is {}".format(f.getvalue()))
 
         return self.evaluate_output(out_text, err_text)
 
@@ -66,6 +54,31 @@ class RealStimulator(Stimulator):
             ret = False
         
         return ret
+    
+    def check_stimuator_and_log_results(self):
+        if self.stimulator_available:
+            return
+
+        if self.stim_call_object.ready():
+            if self.stim_call_object.get():
+                self.logger_obj.log("Stimulation worked!")
+            else:
+                self.logger_obj.log("Stimulation failed!")
+            
+            self.logger_obj = None
+            self.stimulator_available = True
+
+
+    def fire_stimulator(self, logger_obj):
+        self.logger_obj = logger_obj
+        if self.stimulator_available:
+            pool = Pool(processes=1)
+            self.stim_call_object = pool.apply_async(self.stimulate)
+
+            self.stimulator_available = False
+        
+        else:
+            self.logger_obj.log("NOTE - Stimulator unavailable at the moment")
 
 
 class SimulatedStimulator(Stimulator):

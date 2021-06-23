@@ -3,10 +3,13 @@ import os
 import time
 import platform
 from comporthandler import cph
+from stimulator import stim
 from datafile import df
+from multiprocessing import freeze_support
 
 refresh_com_port_timeout = 2  # refresh COM port information every THIS second(s)
 new_data_in_file_timeout = 5  # time between looking for new data in the data file
+check_stimulator_availability = 0.2 # time to check if the stimulator has successfully finished firing
 
 
 class PilotError(Exception):
@@ -36,6 +39,7 @@ def print_to_screen():
 def main():
     last_refresh_time = 0
     last_data_file_refresh = 0
+    last_stimulator_check_time = 0
 
     while True:
         if time.time() - last_refresh_time > refresh_com_port_timeout:
@@ -50,6 +54,12 @@ def main():
 
             df.get_data_from_file()
             last_data_file_refresh = time.time()
+        
+        if time.time() - last_stimulator_check_time > check_stimulator_availability:
+            # Check if the stimulator is available
+
+            stim.check_stimuator_and_log_results()
+            last_stimulator_check_time = time.time()
 
         cph.read_and_log_data()
 
@@ -58,5 +68,5 @@ if __name__ == "__main__":
     #  This is python-ese for "this module is the primary entry point
     #  This will only be true if you run "python controller.py" from the command line
     #  If other code imports this module, this will not be true.
-
+    freeze_support()
     main()

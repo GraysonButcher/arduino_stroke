@@ -49,7 +49,7 @@
 #   print(done)
 #   time.sleep(1)
 
-from multiprocessing import Pool
+from multiprocessing import Pool, freeze_support
 import time
 import os
 done = False
@@ -65,15 +65,28 @@ def blah():
 def cb():
   done = True
 
-pool = Pool(processes=1)
-result = pool.apply_async(foo, ('bar',))
-timestamp = time.time()
-while not result.ready():
-  os.system('clear')
-  print("Not done yet, timer is {}".format(int(time.time() - timestamp) + 1))
-  time.sleep(1)
+def call_foo():
+  pool = Pool(processes=1)
+  result = pool.apply_async(foo, ('bar',))
+  # result = pool.apply_async(blah)
+  timestamp = time.time()
+  while not result.ready():
+    os.system('clear')
+    print("Not done yet, timer is {}".format(int(time.time() - timestamp) + 1))
+    time.sleep(1)
 
-print("Done! Return value is {}".format(result.get()))
+  # pool.close()
+  return result
+
+def main():
+  result = call_foo()
+  result = call_foo()
+
+  print("Done! Return value is {}".format(result.get()))
+
+if __name__ == '__main__':
+  freeze_support()
+  main()
 
 # import threading
 # import time
