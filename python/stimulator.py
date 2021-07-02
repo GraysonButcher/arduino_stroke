@@ -1,6 +1,7 @@
 import sys
 from io import StringIO
 import traceback
+import random
 from contextlib import redirect_stdout
 from multiprocessing import Pool
 
@@ -19,6 +20,12 @@ class Stimulator:
         pass
 
     def evaluate_output(self, out, err):
+        pass
+
+    def check_stimuator_and_log_results(self):
+        pass
+
+    def fire_stimulator(self, logger_obj):
         pass
 
 
@@ -106,6 +113,12 @@ class SimulatedStimulator(Stimulator):
         with redirect_stdout(f):
             self.t.test()
         print("redirect_stdout is:\n{}\n".format(f.getvalue()))
+    
+    def fire_stimulator(self):
+        self.stimulate()
+    
+    def check_stimuator_and_log_results(self):
+        return bool(random.getrandbits(1))
 
 
 try:
