@@ -98,6 +98,9 @@ class ComPortHandler:
 
             except SyntaxError:
                 data = "Unable to understand data from serial port, check baud configuration."
+            
+            except UnicodeDecodeError:
+                self.known_arduinos[port]["log"].log("WARNING: Decoding problem detected. The USB connection might be suspect.")
 
             if data:
                 self.known_arduinos[port]["timer"] = time.time()
