@@ -49,63 +49,88 @@
 #   print(done)
 #   time.sleep(1)
 
-from multiprocessing import Pool, freeze_support
-import time
-import os
-done = False
-
-def foo(bar):
-  time.sleep(5)
-  return "foo with arg {}".format(bar)
-
-def blah():
-  time.sleep(5)
-  return "blah"
-
-def cb():
-  done = True
-
-def call_foo():
-  pool = Pool(processes=1)
-  result = pool.apply_async(foo, ('bar',))
-  # result = pool.apply_async(blah)
-  timestamp = time.time()
-  while not result.ready():
-    os.system('clear')
-    print("Not done yet, timer is {}".format(int(time.time() - timestamp) + 1))
-    time.sleep(1)
-
-  # pool.close()
-  return result
-
-def main():
-  result = call_foo()
-  result = call_foo()
-
-  print("Done! Return value is {}".format(result.get()))
-
-if __name__ == '__main__':
-  freeze_support()
-  main()
-
-# import threading
+# from multiprocessing import Pool, freeze_support
 # import time
 # import os
-
 # done = False
-
+#
 # def foo(bar):
 #   time.sleep(5)
-#   bar = True
+#   return "foo with arg {}".format(bar)
+#
+# def blah():
+#   time.sleep(5)
+#   return "blah"
+#
+# def cb():
+#   done = True
+#
+# def call_foo():
+#   pool = Pool(processes=1)
+#   result = pool.apply_async(foo, ('bar',))
+#   # result = pool.apply_async(blah)
+#   timestamp = time.time()
+#   while not result.ready():
+#     os.system('clear')
+#     print("Not done yet, timer is {}".format(int(time.time() - timestamp) + 1))
+#     time.sleep(1)
+#
+#   # pool.close()
+#   return result
+#
+# def main():
+#   result = call_foo()
+#   result = call_foo()
+#
+#   print("Done! Return value is {}".format(result.get()))
+#
+# if __name__ == '__main__':
+#   freeze_support()
+#   main()
 
-# thread = threading.Thread(target=foo, args=(done,))
-# thread.start()
+import threading
+import time
+import os
 
-# timestamp = time.time()
+done = False
 
-# while thread.is_alive():
-#   os.system('clear')
-#   print("Not done yet, timer is {}".format(int(time.time() - timestamp) + 1))
-#   time.sleep(1)
+class Blah():
+    def __init__(self):
+        self.value = ""
 
-# print("Done! Semaphore is {}".format(done))
+    def foo(self):
+        time.sleep(5)
+        self.value = "done"
+        done = True
+
+b = Blah()
+#thread = threading.Thread(target=b.foo, args=("done",))
+thread = threading.Thread(target=b.foo)
+thread.start()
+
+timestamp = time.time()
+
+while thread.is_alive():
+  os.system('cls')
+  print("Not done yet, timer is {}".format(int(time.time() - timestamp) + 1))
+  time.sleep(1)
+
+print("Done! Semaphore is {}, Completion Value is {}".format(done, b.value))
+
+# from multiprocessing import Pool
+# import time
+#
+# work = (["A", 5], ["B", 2], ["C", 1], ["D", 3])
+#
+# def work_log(work_data):
+#     print(" Process %s waiting %s seconds" % (work_data[0], work_data[1]))
+#     time.sleep(int(work_data[1]))
+#     print(" Process %s Finished." % work_data[0])
+#
+# def pool_handler():
+#     p = Pool(2)
+#     p.map(work_log, work)
+#     print("done with the map call")
+#
+# if __name__ == '__main__':
+#     pool_handler()
