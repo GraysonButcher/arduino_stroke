@@ -28,7 +28,7 @@ class Stimulator:
 
 
 class RealStimulator(Stimulator):
-    def __init__(self, path=r'c:\users\gmb\documents\matlab'):
+    def __init__(self, path=r'C:\Users\GMB\Documents\GitHub\stroke\matlab'):
         print("Initializing Stimulator Connection via Matlab...")
         self.eng = matlab.engine.start_matlab()
         self.eng.addpath(path, nargout=0)
