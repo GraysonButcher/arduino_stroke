@@ -132,15 +132,7 @@ class ComPortHandler:
     def handle_stim_request(self, port):
         self.known_arduinos[port]["log"].log("Stimulation request received from port {}".format(port))
 
-        timestamp = time.time()
-        retval = stim.stimulate()
-        self.known_arduinos[port]["log"].log("Stimulate call time: {}".format(time.time() - timestamp))
-
-        if retval:
-            self.known_arduinos[port]["log"].log("Stimulation worked!")
-
-        else:
-            self.known_arduinos[port]["log"].log("Stimulation failed!")
+        stim.fire_stimulator(self.known_arduinos[port]["log"])
 
     def reset_heartbeat_timer(self, port):
         self.known_arduinos[port]["timer"] = time.time()
