@@ -42,7 +42,7 @@ class ComPortHandler:
         self.com_port_error_count = 0
         self.max_com_port_errors_before_rescan = 50
         self.request_re_obj = re.compile('<request(\d{17}?)>')  # Look for "request" followed by 17 digits encased between "<" and ">"
-        self.write_re_obj = re.compile("<write(\d{17},\d{1,5}\.?\d{1,5},\d{1,5}\.?\d{0,5})>") # Look for "write" followed by 17 digits, 5 digits and 5 digits all comma separated
+        self.write_re_obj = re.compile("<write(\d{17},\d{1,5}\.?\d{0,5},\d{1,5}\.?\d{0,5})>") # Look for "write" followed by 17 digit int, a 5 digit float and a 5 digit float all comma separated
 
     def scan_ports(self):
         #  Scans all known COM ports bound to anything
