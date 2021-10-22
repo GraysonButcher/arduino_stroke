@@ -1,7 +1,7 @@
 % Initialize RodStimUI, call once at the beginning
 function RodStimInit
 
-    result = RodStimUI('init','log',true,'PCM','PCMBETEZA');
+    result = RodStimUI('init','log',true,'PCM','PCM8Y9HWA');
     
     % Check if result is not success
     if ~strcmp(result,'success')

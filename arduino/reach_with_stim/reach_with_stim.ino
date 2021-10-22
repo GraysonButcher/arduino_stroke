@@ -384,7 +384,8 @@ void parseData() {
     calibrationData.zero = atoi(strtokIndx);
     writeToFlashNeeded = 1;
   }
-
+  initialForceCri = configData.forceThreshold; 
+  Serial.println(initialForceCri);
 }
 
 void showNewData() {
@@ -467,6 +468,7 @@ void restart()
       Serial.print(animalID[i]);}
       Serial.println(">");
       initialForceCri = configData.forceThreshold;
+      Serial.println(initialForceCri);
       notes = "restart";
       sendData();
       for (int i = 0; i < percentileArraySize; ++i){
@@ -479,6 +481,16 @@ void restart()
         autoshapingTrigger = 1;
 }
 }
+
+//void checkforslowasspython ()
+//{
+//  newpythonnews = configData.forceThreshold;
+//  if (newpythonnews != oldpythonnews) 
+//  {
+//    initialForceCri = configData.forceThreshold; 
+//    oldpythonnews = newpythonnews;
+//  }
+//}
 
 void setup()
 {
@@ -534,7 +546,7 @@ void loop()
     recvWithStartEndMarkers();
     showNewData();
     writeToFlash();
-
+//checkforslowasspython();
     
     if (millis() - previousHeartbeat > heartbeatInterval) {
       Serial.println('h');
