@@ -55,8 +55,8 @@ class DataFile:
                 line = "{},{},{}".format(rfid, self.rat_data[rfid][0], self.rat_data[rfid][1]).rstrip()
                 f.write("{}\n".format(line))
 
-        self.current_data_file_modified_timestamp = os.path.getmtime(self.data_file)
         self.previous_data_file_modified_timestamp = self.current_data_file_modified_timestamp
+        self.current_data_file_modified_timestamp = os.path.getmtime(self.data_file)
 
     def load_new_values(self):
         self.rat_data = {}
