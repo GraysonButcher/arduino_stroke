@@ -164,7 +164,7 @@ class ComPortHandler:
             # Write the new RFID with default values to the data file
             df.write_new_data_to_existing_file(match, df.rat_data[key][0], df.rat_data[key][1])
 
-        self.transmit_data("{},{},{}".format(match, df.rat_data[key][0], df.rat_data[key][1]), port.strip('\n'))
+        self.transmit_data("{},{},{}".format(match, df.rat_data[key][0], df.rat_data[key][1].strip('\n')), port)
 
     def transmit_data(self, data, port):
         #  Takes in ASCII string
