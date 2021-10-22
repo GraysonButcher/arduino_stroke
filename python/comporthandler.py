@@ -173,8 +173,8 @@ class ComPortHandler:
         #  Lets calling code know if it was successful
         #  The Arduino is expecting the data to start with "<" and end with ">"
 
-        data_to_transmit = "<{}>".format(data).encode()
-        self.known_arduinos[port]["log"].log("Transmitting data: {}".format(data_to_transmit))
+        data_to_transmit = "<{}>".format(data).encode('utf-8')
+        self.known_arduinos[port]["log"].log("Transmitting data: {}".format(data))
 
         retval = 0  # defaults to successful used if no arduino ports currently in use
         for port in self.known_arduinos.keys():
