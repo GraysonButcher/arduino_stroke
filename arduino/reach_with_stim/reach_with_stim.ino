@@ -61,16 +61,10 @@ int bufferPlace = 0;
 byte transmitData = 0;
 bool forceTriggered = 0; 
 unsigned long heartbeatTimer = millis();
-unsigned long filterTimer = 0;
-unsigned long filterTimeout = initialFilterTimeout;
-unsigned long tempFilterTimeout = 0;
 unsigned long solenoidTimer = millis();
 unsigned long autoshapingTimer = millis();
 unsigned long forceReporter = 0;
-byte validDataBeingTransmitted = 0;
 bool MASTERDEBUG = InitialMasterDebug;
-byte enableSendData = 1;
-byte serialReadData;
 //bool lightActive = 1;
 bool autoshapingTrigger = 0;
 float forceVal = 0;
@@ -238,59 +232,6 @@ void sendData()
   notes = "";
   }
 
-void isPCStillThere() //AB - I'm not sure if this is still necessary or not
-{
-  if (serialReadData == endChar)
-  {
-    enableSendData = 0;
-  }
-}
-
-void getNewTimeoutDigits() //AB - this one I need to talk about - not sure what it's for
-{
-  char *dataptr;
-  *dataptr = serialReadData;
-  switch (serialReadData)
-  {
-    case startChar:
-      validDataBeingTransmitted = 1;
-      break;
-    case endChar:
-      validDataBeingTransmitted = 0;
-      if (tempFilterTimeout <= ridiculousFilterLimit)
-      {
-        filterTimeout = tempFilterTimeout;
-        tempFilterTimeout = 0;
-        if (MASTERDEBUG)
-        {
-          Serial.print("Timeout set to\n");
-          Serial.println(filterTimeout);
-        }
-        else
-        {
-          Serial.println(timeoutAcceptedChar);
-        }
-        break;
-      }
-      else
-      {
-        Serial.println(timeoutRejectedChar);
-      }
-  }
-  if (validDataBeingTransmitted && isdigit(serialReadData))
-  {
-    int digdata = atoi(dataptr);
-    if (tempFilterTimeout == 0)
-    {
-      tempFilterTimeout = digdata;
-    }
-    else
-    {
-      tempFilterTimeout *= 10 + digdata;
-    }
-  }
-}
-
 void setInputPinPullups() // AB - i'm not sure what this one is, either.  
 {
   #if defined (__AVR_ATmega328P__)
@@ -316,7 +257,6 @@ void recvWithStartEndMarkers() {
   char startMarker = '<';
   char endMarker = '>';
   char rc;
-
   while (Serial.available() > 0 && newData == false) {
     rc = Serial.read();
 
@@ -586,25 +526,15 @@ void loop()
     transmitData = 1;
   }
 
-  if (enableSendData)
+  if (millis() - heartbeatTimer > heartbeatTimeout)
   {
-    if (Serial.available())
-    {
-      serialReadData = Serial.read();
-      isPCStillThere();
-      getNewTimeoutDigits();
-    }
+    transmitHeartbeat();
+  }
 
-    if (millis() - heartbeatTimer > heartbeatTimeout)
-    {
-      transmitHeartbeat();
-    }
-
-    if (transmitData)
-    {
-      sendData();
-      transmitData = 0;
-    }
+  if (transmitData)
+  {
+    sendData();
+    transmitData = 0;
   }
   
   if (autoshaping && animalin)
