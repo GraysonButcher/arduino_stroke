@@ -20,7 +20,7 @@ struct forceCalibration
   float zero;
 } calibrationData = {0, 0};
 
-const byte numChars = 25;
+const byte numChars = 50;
 char receiveBuffer[numChars];
 
 boolean newData = false;
