@@ -24,7 +24,7 @@
 
 #define hysteresis                          1        // Must be an even number
 
-#define pullThreshold                10// Threshold of force sensor that initiates a pull
+#define pullThreshold               1// Threshold of force sensor that initiates a pull
 
 #define pullThresholdhigh                  pullThreshold + hysteresis
 

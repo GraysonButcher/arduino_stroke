@@ -52,11 +52,11 @@ int lastSwitch = 0;
 
 //Training stuff:
 
-int activationThreshold = 10;
+int activationThreshold = 5;
 int pullInitiated = 0;
 int thisPull = 0;
 int pullBuffer[percentileArraySize];
-int initialForceCri = 5;
+int initialForceCri = 10;
 int bufferPlace = 0;
 byte transmitData = 0;
 bool forceTriggered = 0; 
@@ -68,6 +68,7 @@ bool MASTERDEBUG = InitialMasterDebug;
 //bool lightActive = 1;
 bool autoshapingTrigger = 0;
 float forceVal = 0;
+float forceValprev = 0;
 float forceValraw = 0;
 long nextRandom;
 int animalID[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -174,7 +175,7 @@ void randomFire ()
 
 void evaluateInputStates()
 {
-   if (forceVal > pullThresholdhigh){
+   if ((forceVal > pullThresholdhigh)&&(forceValprev > pullThresholdhigh)){
     pullInitiated = 1;
     transmitData = 1;
         if (forceVal > thisPull){
@@ -325,7 +326,14 @@ void parseData() {
     writeToFlashNeeded = 1;
   }
   initialForceCri = configData.forceThreshold; 
+  Serial.print("initialForceCrigotchanged:");
   Serial.println(initialForceCri);
+        for (int i = 0; i < percentileArraySize; ++i){
+      pullBuffer[i] = initialForceCri;}
+//        Serial.println("percentileafterdatarecieveis:");
+//   for (int i = 0; i < percentileArraySize; i++){
+//    Serial.print(pullBuffer[i]);
+//}
 }
 
 void showNewData() {
@@ -402,24 +410,28 @@ void checkforreset ()
 
 void restart()
 {
-  configData.forceThreshold = 5;
+  //configData.forceThreshold = 5;
       Serial.print("<request");
      for (int i = 0; i < 16; ++i){
       Serial.print(animalID[i]);}
       Serial.println(">");
       initialForceCri = configData.forceThreshold;
+      Serial.print("initialForceCri:");
       Serial.println(initialForceCri);
       notes = "restart";
       sendData();
-      for (int i = 0; i < percentileArraySize; ++i){
-      pullBuffer[i] = initialForceCri;}
-      
+
       nextRandom = random(minRandomValue, maxRandomValue);
       if (autoshaping)
         {
         autoshapingTimer = millis();
         autoshapingTrigger = 1;
+
 }
+//        Serial.println("percentileafterrestartis:");
+//   for (int i = 0; i < percentileArraySize; i++){
+//    Serial.print(pullBuffer[i]);
+//}
 }
 
 //void checkforslowasspython ()
@@ -434,7 +446,8 @@ void restart()
 
 void setup()
 {
-
+      for (int i = 0; i < percentileArraySize; ++i){
+      pullBuffer[i] = initialForceCri;}
   pinMode(microswitchRFID,INPUT);
  digitalWrite(microswitchRFID,HIGH);
  Serial.begin(baudRate);
@@ -473,13 +486,14 @@ void setup()
     Serial.println(calibrationData.zero);
   //  Serial.println("<Ready bitches>");
   //animaldetected = 1;//this is just for testing - makes it so that the code starts with the introduction of an animal
-  restart();
+  //restart();
   forceTriggered=0;
   Serial.println("exiting setup");
 }
 
 void loop()
 {  
+  //Serial.println(forceVal);
   rfidread();
   checkdoor();
   checkforreset();
@@ -516,7 +530,8 @@ void loop()
   sortArray(pullTemp, percentileArraySize);
 
   activationThreshold = pullTemp[(percentileArraySize-1)/2];
-
+  forceValprev = forceVal;
+  delay(1);
   forceValraw = analogRead(forceSensorPin);
   forceVal = (forceValraw - calibrationData.zero)/calibrationData.slope; 
   evaluateInputStates();
