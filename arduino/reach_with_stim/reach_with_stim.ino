@@ -56,7 +56,7 @@ int activationThreshold = 5;
 int pullInitiated = 0;
 int thisPull = 0;
 int pullBuffer[percentileArraySize];
-int initialForceCri = 10;
+int initialForceCri = 5;
 int bufferPlace = 0;
 byte transmitData = 0;
 bool forceTriggered = 0; 
@@ -108,6 +108,7 @@ while(serial_lcd.available())
 {
 //Serial.print("checking");
 character = serial_lcd.read();
+//Serial.print(character);
 //Serial.println(character);
 //Serial.println(content.length());
 content.concat(character); //Attaches the parameter to a String
@@ -382,6 +383,8 @@ void checkdoor()
     }
     else {
       animalin = 0;
+      for(int i=0;i<16;i++){
+        animalID[i] = 0;}
       lastSwitch = currentSwitch;
       notes = "animal out";
       writeEnding();
