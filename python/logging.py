@@ -15,7 +15,7 @@ class Log:
 
     def log(self, msg):
         f = open(self.path, 'a')
-        f.write('{},{}\n'.format(datetime.now(), msg.rstrip('\n')))
+        f.write('{};{}\n'.format(datetime.now(), msg.rstrip('\n')))
         f.close()
 
 

@@ -1,6 +1,6 @@
-#define percentileoff                         0        //turns percentile changes off (1) or on (0)
+#define percentileoff                         1        //turns percentile changes off (1) or on (0)
 
-#define fixedvalue                            5       //pull criteron value when percentile is off
+#define fixedvalue                            15       //pull criteron value when percentile is off
 
 #define percentileArraySize                  15      //must be odd number - number of past pulls with which new criterion will be set
 
@@ -28,11 +28,11 @@
 
 #define hysteresis                          1        // Must be an even number
 
-#define pullThreshold               3// Threshold of force sensor that initiates a pull
+#define pullThreshold                       3// Threshold of force sensor that initiates a pull
 
-#define pullThresholdhigh                  pullThreshold + hysteresis
+#define pullThresholdhigh                   pullThreshold + hysteresis
 
-#define pullThresholdlow                   pullThreshold - hysteresis
+#define pullThresholdlow                    pullThreshold - hysteresis
 
 #define highThreshold                       (activationThreshold + hysteresis)
 

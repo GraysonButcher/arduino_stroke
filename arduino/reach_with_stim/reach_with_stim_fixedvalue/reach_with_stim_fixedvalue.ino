@@ -184,6 +184,7 @@ void evaluateInputStates()
   }
   if ((forceVal < pullThresholdlow)&&(pullInitiated == 1)){
     pullInitiated = 0;
+    if (percentileoff == 0){
       if (bufferPlace < 15){
       pullBuffer[bufferPlace] = thisPull;
       thisPull = 0;
@@ -194,6 +195,7 @@ void evaluateInputStates()
       thisPull = 0;
       bufferPlace = bufferPlace + 1;
       }
+    }
   }
   if ((forceVal > highThreshold)&&(forceTriggered==0))
   { 
@@ -327,6 +329,7 @@ void parseData() {
     writeToFlashNeeded = 1;
   }
   initialForceCri = configData.forceThreshold; 
+  if (percentileoff == 1){initialForceCri = fixedvalue;}
   Serial.print("initialForceCrigotchanged:");
   Serial.println(initialForceCri);
         for (int i = 0; i < percentileArraySize; ++i){
@@ -342,15 +345,15 @@ void showNewData() {
     Serial.print("This just in: ");
     Serial.println(receiveBuffer);
     parseData();
-    Serial.print("Tag ID is ");
+    Serial.print("Tag ID is: ");
     Serial.println(configData.tagId);
-    Serial.print("Force Threshold is ");
+    Serial.print("Force Threshold is: ");
     Serial.println(configData.forceThreshold);
-    Serial.print("Handle Position is ");
+    Serial.print("Handle Position is: ");
     Serial.println(configData.handlePosition);
-    Serial.print("Slope is ");
+    Serial.print("Slope is: ");
     Serial.println(calibrationData.slope);
-    Serial.print("Zero is ");
+    Serial.print("Zero is: ");
     Serial.println(calibrationData.zero);
     newData = false;
   }
@@ -363,7 +366,12 @@ void writeEnding()
      for (int i = 0; i < 16; ++i){
       Serial.print(animalID[i]);}
       Serial.print(",");
-      Serial.print(configData.forceThreshold + add);
+      if (percentileoff ==1) {
+        Serial.print(fixedvalue);
+        }
+      else {
+        Serial.print(configData.forceThreshold + add);
+        }
       Serial.println(",0>");
 }
 
@@ -383,12 +391,12 @@ void checkdoor()
     }
     else {
       animalin = 0;
-      for(int i=0;i<16;i++){
-        animalID[i] = 0;}
       lastSwitch = currentSwitch;
       notes = "animal out";
       writeEnding();
       sendData();
+      for(int i=0;i<16;i++){
+        animalID[i] = 0;}
     }}
     }
 
@@ -419,6 +427,10 @@ void restart()
       Serial.print(animalID[i]);}
       Serial.println(">");
       initialForceCri = configData.forceThreshold;
+      if (percentileoff == 1) { 
+        initialForceCri = fixedvalue; 
+        Serial.print("fixedValueMode ");
+        }
       Serial.print("initialForceCri:");
       Serial.println(initialForceCri);
       notes = "restart";
@@ -449,8 +461,10 @@ void restart()
 
 void setup()
 {
-      for (int i = 0; i < percentileArraySize; ++i){
-      pullBuffer[i] = initialForceCri;}
+      if (percentileoff == 0){for (int i = 0; i < percentileArraySize; ++i){
+      pullBuffer[i] = initialForceCri;}}
+      else{for (int i = 0; i < percentileArraySize; ++i){
+      pullBuffer[i] = fixedvalue;}}
   pinMode(microswitchRFID,INPUT);
  digitalWrite(microswitchRFID,HIGH);
  Serial.begin(baudRate);
