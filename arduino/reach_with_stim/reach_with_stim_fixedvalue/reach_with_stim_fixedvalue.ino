@@ -223,7 +223,7 @@ void fireSolenoid()
 
 void sendData()
 {
-  Serial.print("Force Reading: ");
+  Serial.print(";Force Reading: ");
   Serial.print(forceVal);
   Serial.print("; Criterion met?: ");
   Serial.print(forceTriggered);
