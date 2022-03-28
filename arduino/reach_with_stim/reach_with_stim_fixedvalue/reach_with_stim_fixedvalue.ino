@@ -214,7 +214,7 @@ void evaluateInputStates()
 
 void fireSolenoid()
 {
-    Serial.println ("Firing Solenoid");
+    Serial.println (";;;;Firing Solenoid");
     digitalWrite(solenoidOutputPin, soleniodOn);
     delay(5);
     digitalWrite(solenoidOutputPin, soleniodOff);

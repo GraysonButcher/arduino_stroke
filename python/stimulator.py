@@ -67,9 +67,9 @@ class RealStimulator(Stimulator):
 
         if not self.stimulate_thread.is_alive():
             if self.stimulate_result:
-                self.logger_obj.log("Stimulation worked!")
+                self.logger_obj.log(";;;;Stimulation worked!")
             else:
-                self.logger_obj.log("Stimulation failed!")
+                self.logger_obj.log(";;;;Stimulation failed!")
             
             self.logger_obj = None
             self.stimulator_available = True
@@ -83,7 +83,7 @@ class RealStimulator(Stimulator):
             self.stimulate_thread.start()
         
         else:
-            self.logger_obj.log("NOTE - Stimulator unavailable at the moment")
+            self.logger_obj.log(";;;;NOTE - Stimulator unavailable at the moment")
 
 
 class SimulatedStimulator(Stimulator):
@@ -111,10 +111,10 @@ class SimulatedStimulator(Stimulator):
             self.stimulate_thread = threading.Thread(target=self.stimulate)
             self.stimulate_thread.start()
 
-            self.logger_obj.log("*SIMULATED* Stimulator fired")
+            self.logger_obj.log(";;;;*SIMULATED* Stimulator fired")
 
         else:
-            self.logger_obj.log("NOTE - *SIMULATED* Stimulator unavailable at the moment")
+            self.logger_obj.log(";;;;NOTE - *SIMULATED* Stimulator unavailable at the moment")
     
     def check_stimuator_and_log_results(self):
         if self.stimulator_available:
@@ -122,9 +122,9 @@ class SimulatedStimulator(Stimulator):
 
         if not self.stimulate_thread.is_alive():
             if self.stimulate_result:
-                self.logger_obj.log("*SIMULATED* Stimulation WORKED!")
+                self.logger_obj.log(";;;;*SIMULATED* Stimulation WORKED!")
             else:
-                self.logger_obj.log("*SIMULATED* Stimulation FAILED!")
+                self.logger_obj.log(";;;;*SIMULATED* Stimulation FAILED!")
             self.logger_obj = None
             self.stimulator_available = True
 
