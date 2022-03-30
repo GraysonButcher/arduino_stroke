@@ -214,7 +214,7 @@ void evaluateInputStates()
 
 void fireSolenoid()
 {
-    Serial.println (";;;;Firing Solenoid");
+    Serial.println (";;;;;Firing Solenoid");
     digitalWrite(solenoidOutputPin, soleniodOn);
     delay(5);
     digitalWrite(solenoidOutputPin, soleniodOff);
@@ -225,6 +225,8 @@ void sendData()
 {
   Serial.print(";Force Reading: ");
   Serial.print(forceVal);
+  Serial.print(";Criterion is: ");
+  Serial.print(activationThreshold);
   Serial.print("; Criterion met?: ");
   Serial.print(forceTriggered);
   Serial.print("; Animal ID: ");
@@ -361,7 +363,7 @@ void showNewData() {
 
 void writeEnding()
 {
-      int add = (activationThreshold - configData.forceThreshold)/2;
+      int add = (activationThreshold - configData.forceThreshold);
       Serial.print("<write");
      for (int i = 0; i < 16; ++i){
       Serial.print(animalID[i]);}
