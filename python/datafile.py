@@ -8,9 +8,8 @@ class DataFile:
         self.previous_data_file_modified_timestamp = 0
         self.error_msg = ""
         self.re_obj = re.compile("\d{17}|default,\d{1,5},\d{1,5}")
-
-        self.default_data = "default,5,6\n12345678901234567,1,1\n96847000010331565,4,0\n96847000010332304,5,6"
-        # Look for 17 characters or the word "default", one comma, a 1-5 digit number, a comma and a 1-5 digit number.
+        default_test_history = ",1" * 100
+        self.default_data = f"default,5,6{default_test_history}\n12345678901234567,1,1{default_test_history}\n96847000010331565,4,0{default_test_history}\n96847000010332304,5,6{default_test_history}"
 
         self.rat_data = {}
         #  self.rat_data will follow the following form:
@@ -18,7 +17,8 @@ class DataFile:
         #      "rfid":
         #      [
         #          <force threshold>,
-        #          <handle position>
+        #          <handle position>,
+        #          <test history> (repeated 100 times)
         #      ]
         #  }
 
@@ -52,7 +52,9 @@ class DataFile:
     def write_entire_data_file(self):
         with open(self.data_file, "w") as f:
             for rfid in self.rat_data.keys():
-                line = "{},{},{}".format(rfid, self.rat_data[rfid][0], self.rat_data[rfid][1]).rstrip()
+                line = rfid
+                for data in self.rat_data[rfid]:
+                    line += ",{}".format(data).rstrip()
                 f.write("{}\n".format(line))
 
         self.previous_data_file_modified_timestamp = self.current_data_file_modified_timestamp

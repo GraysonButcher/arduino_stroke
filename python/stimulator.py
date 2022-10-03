@@ -82,7 +82,7 @@ class RealStimulator(Stimulator):
             self.stimulate_thread = threading.Thread(target=self.stimulate)
             self.stimulate_thread.start()
 
-             self.logger_obj.log(";;;;;Stimulator fired")
+            self.logger_obj.log(";;;;;Stimulator fired")
         
         else:
             self.logger_obj.log(";;;;;NOTE - Stimulator unavailable at the moment")

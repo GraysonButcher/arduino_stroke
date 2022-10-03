@@ -42,7 +42,11 @@ class ComPortHandler:
         self.com_port_error_count = 0
         self.max_com_port_errors_before_rescan = 50
         self.request_re_obj = re.compile('<request(\d{17}?)>')  # Look for "request" followed by 17 digits encased between "<" and ">"
-        self.write_re_obj = re.compile("<write(\d{17},\d{1,5}\.?\d{0,5},\d{1,5}\.?\d{0,5})>") # Look for "write" followed by 17 digit int, a 5 digit float and a 5 digit float all comma separated
+        self.write_re_obj = re.compile("<write(\d{17},\d{1,5}\.?\d{0,5},\d{1,5}\.?\d{0,5}(,\d{1}){100})>")
+        # Look for 17 characters or the word "default" and a comma,
+        #   a 1-5 digit number and a comma,
+        #   a 1-5 digit number and a comma,
+        #   a single digit number repeated 100 times each separated by a comma.
 
     def scan_ports(self):
         #  Scans all known COM ports bound to anything
@@ -140,10 +144,13 @@ class ComPortHandler:
     def handle_write_request(self, data, port):
         # Data comes in as comma-separated: "RFID,force,position".
 
-        rfid, force, pos = self.write_re_obj.search(data).group(1).split(',')
+        data_array = self.write_re_obj.search(data).group(1).split(',')
+        rfid = data_array.pop(0)
+
+        df.rat_data[rfid] = data_array
+
         self.known_arduinos[port]["log"].log("write request received for RFID {}".format(rfid))
 
-        df.rat_data[rfid] = [force, pos]
         df.write_entire_data_file()
 
     def handle_data_request(self, data, port):
@@ -164,7 +171,10 @@ class ComPortHandler:
             # Write the new RFID with default values to the data file
             df.write_new_data_to_existing_file(match, df.rat_data[key][0], df.rat_data[key][1])
 
-        self.transmit_data("{},{},{}".format(match, df.rat_data[key][0], df.rat_data[key][1].strip('\n')), port)
+        data_to_transmit = "{}".format(match)
+        for val in df.rat_data[key]:
+            data_to_transmit += ",{}".format(val)
+        self.transmit_data(data_to_transmit.strip('\n'), port)
 
     def transmit_data(self, data, port):
         #  Takes in ASCII string

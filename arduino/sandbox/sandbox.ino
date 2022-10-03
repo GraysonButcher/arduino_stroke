@@ -8,13 +8,16 @@ struct receivedData
   int handlePosition; // 5 digits
 } configData = {0, 0, 0};
 
+int testHistory[100];
+int sizeoftestHistory = sizeof(testHistory) / sizeof(int);
+
 struct forceCalibration
 {
   int slope;
   int zero;
 } calibrationData = {0, 0};
 
-const byte numChars = 25;
+const int numChars = 400;
 char receiveBuffer[numChars];
 
 boolean newData = false;
@@ -26,47 +29,51 @@ int writeCtr = 0;
 int requestWriteCtr = 0;
 boolean writeToFlashNeeded = 0;
 int ledState = 1;
+boolean recvInProgress = false;
+int ndx = 0;
 
 void setup() {
-    Serial.begin(9600);
+  Serial.begin(9600);
+  for (int i = 0; i < sizeoftestHistory; i++) {
+    testHistory[i] = i & 1;
+  }
 //    EEPROM.get(0, calibrationData);
 //    Serial.print("From Flash: Slope is ");
 //    Serial.println(calibrationData.slope);
 //    Serial.print("Zero is ");
 //    Serial.println(calibrationData.zero);
-    Serial.println("<Ready bitches>");
-    pinMode(13, OUTPUT);
-    digitalWrite(13, ledState);
+  Serial.println("<Ready bitches>");
+  pinMode(13, OUTPUT);
+  digitalWrite(13, ledState);
 }
 
 void loop() {
-    recvWithStartEndMarkers();
-    showNewData();
-    //writeToFlash();
-    
-    if (millis() - previousRequestTimer > requestInterval) {
-      //requestStim();
-      switch (requestWriteCtr & 1) {
-        case 0:
-          requestData();
-          break;
+  recvWithStartEndMarkers();
+  showNewData();
+  //writeToFlash();
+  
+  if ((!recvInProgress) && (millis() - previousRequestTimer > requestInterval)) {
+    switch (requestWriteCtr & 1) {
+      case 0:
+        requestData();
+        break;
 
-        case 1:
-          writeData();
-          break;
+      case 1:
+        writeData();
+        break;
 
-        default:
-          break;
-      }
-      requestWriteCtr++;
-      previousRequestTimer = millis();
+      default:
+        break;
     }
-    
-    if (millis() - previousHeartbeat > heartbeatInterval) {
-      Serial.println('h');
-      requestStim();
-      previousHeartbeat = millis();
-    }
+    requestWriteCtr++;
+    previousRequestTimer = millis();
+  }
+  
+  if (millis() - previousHeartbeat > heartbeatInterval) {
+    Serial.println('h');
+    requestStim();
+    previousHeartbeat = millis();
+  }
 }
 
 void requestStim() {
@@ -114,25 +121,29 @@ void writeData() {
   switch (writeCtr & 1) {
     case 0:
       line = "<write11111111111111111," + counter;
-      line = line + ",4>";
+      line = line + ",4";
       break;
 
     case 1:
       line = "<write22222222222222222," + counter;
-      line = line + ",4>";
+      line = line + ",4";
       break;
 
     default:
       break;
   }
+
+  for (int i = 0; i < sizeoftestHistory; i++) {
+    line = line + "," + testHistory[i];
+  }
+
+  line = line + ">";  
   
   Serial.println(line);
   writeCtr++;
 }
 
 void recvWithStartEndMarkers() {
-  static boolean recvInProgress = false;
-  static byte ndx = 0;
   char startMarker = '<';
   char endMarker = '>';
   char rc;
@@ -154,7 +165,6 @@ void recvWithStartEndMarkers() {
         ndx = 0;
         newData = true;
       }
-
       if (millis() - receiveTimer > receivetimeout) {
         receiveBuffer[ndx] = '\0';
         recvInProgress = false;
