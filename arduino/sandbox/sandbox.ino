@@ -35,7 +35,7 @@ int ndx = 0;
 void setup() {
   Serial.begin(9600);
   for (int i = 0; i < sizeoftestHistory; i++) {
-    testHistory[i] = i & 1;
+    testHistory[i] = i & 2;
   }
 //    EEPROM.get(0, calibrationData);
 //    Serial.print("From Flash: Slope is ");
@@ -116,30 +116,29 @@ void writeData() {
   /*
    * NOTE - This is for testing the pyhon code and isn't useful in normal operation
    */
-  String line;
+  String line1;
   String counter = String(writeCtr);
   switch (writeCtr & 1) {
     case 0:
-      line = "<write11111111111111111," + counter;
-      line = line + ",4";
+      line1 = "<write11111111111111111," + counter;
+      line1 = line1 + ",4";
       break;
 
     case 1:
-      line = "<write22222222222222222," + counter;
-      line = line + ",4";
+      line1 = "<write22222222222222222," + counter;
+      line1 = line1 + ",4";
       break;
 
     default:
       break;
   }
-
+  Serial.print(line1);
+  String line2;
   for (int i = 0; i < sizeoftestHistory; i++) {
-    line = line + "," + testHistory[i];
+    line2 = line2 + "," + testHistory[i];
   }
-
-  line = line + ">";  
-  
-  Serial.println(line);
+  Serial.print(line2);
+  Serial.println(">");
   writeCtr++;
 }
 
@@ -188,7 +187,42 @@ void parseData() {
     }
   }
 
-  if (commaCount == 2) {
+  if (commaCount >= 2) {
+    char *data[103];
+    char *ptr = NULL;
+    byte index = 0;
+    ptr = strtok(receiveBuffer, ",");
+    while (ptr != NULL)
+    {
+      data[index] = ptr;
+      index++;
+      ptr = strtok(NULL, ",");
+    }
+    for (int i = 0; i < index; i++)
+    {
+      Serial.print("i: ");
+      Serial.print(i);
+      Serial.print(" data: ");
+      Serial.println(data[i]);
+      switch (i)
+      {
+        case 0:
+          strcpy(configData.tagId, data[i]);
+          break;
+        case 1:
+          configData.forceThreshold = atoi(data[i]);
+          break;
+        case 2:
+          configData.handlePosition = atoi(data[i]);
+          break;
+        default:
+          testHistory[i-3] = atoi(data[i]);
+          break;
+      }
+    }
+    
+
+/*    
     char * strtokIndx; // this is used by strtok() as an index
 
     strtokIndx = strtok(receiveBuffer,","); // get the first part - the string
@@ -199,6 +233,7 @@ void parseData() {
   
     strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
     configData.handlePosition = atoi(strtokIndx);
+*/
   }
 
   if (commaCount == 1) {
@@ -226,6 +261,14 @@ void showNewData() {
     Serial.println(configData.forceThreshold);
     Serial.print("Handle Position is ");
     Serial.println(configData.handlePosition);
+    Serial.print("Size of testHistory is ");
+    Serial.println(sizeoftestHistory);
+    Serial.println("testHistory is: ");
+    for (int i = 0; i < sizeoftestHistory; i++) {
+      Serial.print(testHistory[i]);
+      Serial.print(" ");
+    }
+    Serial.println(" ");
 //    Serial.print("Slope is ");
 //    Serial.println(calibrationData.slope);
 //    Serial.print("Zero is ");
