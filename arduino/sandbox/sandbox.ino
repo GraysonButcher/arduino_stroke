@@ -35,7 +35,7 @@ int ndx = 0;
 void setup() {
   Serial.begin(9600);
   for (int i = 0; i < sizeoftestHistory; i++) {
-    testHistory[i] = i & 2;
+    testHistory[i] = i & 1;
   }
 //    EEPROM.get(0, calibrationData);
 //    Serial.print("From Flash: Slope is ");
@@ -132,14 +132,17 @@ void writeData() {
     default:
       break;
   }
-  Serial.print(line1);
+  
   String line2;
   for (int i = 0; i < sizeoftestHistory; i++) {
-    line2 = line2 + "," + testHistory[i];
+    line2.concat(',');
+    line2.concat(testHistory[i]);
   }
+  Serial.print(line1);
   Serial.print(line2);
   Serial.println(">");
   writeCtr++;
+
 }
 
 void recvWithStartEndMarkers() {
@@ -200,10 +203,6 @@ void parseData() {
     }
     for (int i = 0; i < index; i++)
     {
-      Serial.print("i: ");
-      Serial.print(i);
-      Serial.print(" data: ");
-      Serial.println(data[i]);
       switch (i)
       {
         case 0:
